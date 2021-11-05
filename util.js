@@ -56,19 +56,19 @@ function getCurrentWorkspace() {
 }
 
 function runFilter(app, fragment) {
-  if (fragment == '') return true;
+  if (fragment === '') return true;
 
   fragment = escapeChars(fragment);
 
   const matching = Convenience.getSettings().get_uint('matching');
-  const splitChar = matching == matchFuzzy ? '' : ' ';
+  const splitChar = matching === matchFuzzy ? '' : ' ';
   const specialexp = new RegExp(/[-[\]{}()*+?.,\\^$|#]/);
   const regexp = new RegExp(
     fragment.split(splitChar).reduce(function (a, b) {
       // In order to treat special charactes as a whole,
       // we manually identify and concatenate them
-      if (b == '\\') return a + b;
-      else if (specialexp.test(b) && a.charAt(a.length - 1) == '\\')
+      if (b === '\\') return a + b;
+      else if (specialexp.test(b) && a.charAt(a.length - 1) === '\\')
         return a.slice(0, a.length - 1) + '[^' + '\\' + b + ']*' + '\\' + b;
       else return a + '[^' + b + ']*' + b;
     }),
@@ -82,14 +82,14 @@ function runFilter(app, fragment) {
   // go through each match inside description
   while ((match = regexp.exec(filteredDescription))) {
     // A full match at the beginning is the best match
-    if (match.index == 0 && match[0].length == fragment.length) {
+    if (match.index === 0 && match[0].length === fragment.length) {
       score += 100;
     }
 
     // matches at beginning word boundaries are better than in the middle of words
     const wordPrefixFactor =
-      match.index == 0 ||
-      (match.index != 0 &&
+      match.index === 0 ||
+      (match.index !== 0 &&
         [' ', '[', '('].includes(filteredDescription.charAt(match.index - 1)))
         ? 1.2
         : 0.0;
@@ -144,15 +144,15 @@ function updateHighlight(boxes, query, cursor) {
 
 function highlightText(text, query) {
   // Don't apply highlighting if there's no input
-  if (query == '') return text.replace(/&/g, '&amp;');
+  if (query === '') return text.replace(/&/g, '&amp;');
 
   // Identify substring parts to be highlighted
   const matching = Convenience.getSettings().get_uint('matching');
   let queryExpression = '(';
-  let queries = matching == matchFuzzy ? query.split(/ |/) : query.split(' ');
+  let queries = matching === matchFuzzy ? query.split(/ |/) : query.split(' ');
   let queriesLength = queries.length;
   for (let i = 0; i < queriesLength - 1; i++) {
-    if (queries[i] != '') {
+    if (queries[i] !== '') {
       queryExpression += escapeChars(queries[i]) + '|';
     }
   }
@@ -193,15 +193,11 @@ function filterByText(apps, text) {
     .filter((app) => app.mode.filter(app.app))
     .filter(makeFilter(text));
 
-  // Always preserve focus order before typing
-  const ordering = Convenience.getSettings().get_uint('ordering');
-  if (ordering == orderByRelevancy && text != '') {
-    filteredApps = filteredApps.sort(function (a, b) {
-      if (a.app.score > b.app.score) return -1;
-      if (a.app.score < b.app.score) return 1;
-      return 0;
-    });
-  }
+  filteredApps.sort((a, b) => {
+    if (a.app.title.toLowerCase() < b.app.title.toLowerCase()) return -1;
+    if (a.app.title.toLowerCase() > b.app.title.toLowerCase()) return 1;
+    return 0;
+  });
 
   return filteredApps;
 }

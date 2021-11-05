@@ -198,19 +198,19 @@ function _showUI() {
   let filteredApps = windows;
 
   rerunFiltersAndUpdate = (o) => {
-    filteredApps = util.filterByText(apps, o.text);
-    if (
-      Convenience.getSettings().get_boolean('activate-immediately') &&
-      filteredApps.length === 1
-    ) {
+    const windowTitlePrefix = "Intellij ";
+    filteredApps = util.filterByText(apps, windowTitlePrefix + o.text);
+
+    if (Convenience.getSettings().get_boolean('activate-immediately') && filteredApps.length === 1) {
       debouncedActivateUnique();
     }
 
     updateBoxes(filteredApps);
     // If there's less boxes then in previous cursor position,
     // set cursor to the last box
-    if (cursor + 1 > currentlyShowingCount)
+    if (cursor + 1 > currentlyShowingCount){
       cursor = Math.max(currentlyShowingCount - 1, 0);
+    }
     util.updateHighlight(boxes, o.text, cursor);
   };
 
@@ -262,7 +262,7 @@ function _showUI() {
       // Delete last character
       const entryText = entry.get_clutter_text();
       let textCursor = entryText.get_cursor_position();
-      if (textCursor == -1) textCursor = o.text.length;
+      if (textCursor === -1) textCursor = o.text.length;
       entryText.delete_text(textCursor - 1, textCursor);
       rerunFiltersAndUpdate(o);
     }

@@ -11,9 +11,9 @@ const Convenience = Me.imports.convenience;
 const util = Me.imports.util;
 const modeUtils = Me.imports.modes.modeUtils.ModeUtils;
 
-var onlyCurrentWorkspaceToggled = false;
+let onlyCurrentWorkspaceToggled = false;
 
-var Switcher = (function() {
+let Switcher = (function() {
   // Limit the number of displayed items
   const MAX_NUM_ITEMS = 15;
 
@@ -22,9 +22,7 @@ var Switcher = (function() {
   };
 
   let filter = function(app) {
-    let onlyCurrentWorkspace = Convenience.getSettings().get_boolean(
-      'only-current-workspace'
-    );
+    let onlyCurrentWorkspace = Convenience.getSettings().get_boolean('only-current-workspace');
     let currentWorkspace = util.getCurrentWorkspace();
     const workspace = app.get_workspace();
     const workspaceIndex = workspace ? workspace.index() : null;
@@ -39,9 +37,19 @@ var Switcher = (function() {
     Main.activateWindow(app);
   };
 
+  const inspectTabListKeys = function(tabList){
+    tabList.forEach(element => {
+      for (const key2 in element) {
+        global.log("Key: " + key2);
+      }
+      global.log("------------------");
+    });
+  }
+
   let apps = function() {
     // Get all windows in activation order
     let tabList = global.display.get_tab_list(Meta.TabList.NORMAL, null);
+    //inspectTabListKeys(tabList);
 
     return tabList.map(tab => ({ app: tab, mode: Switcher, activate }));
   };
